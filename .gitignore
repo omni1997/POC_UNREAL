@@ -1,0 +1,55 @@
+# Instructions locales Claude (personnelles)
+CLAUDE.local.md
+
+# Unreal Engine - dossiers générés
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+
+# Fichiers de projet générés (régénérables via GenerateProjectFiles)
+*.sln
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.xcodeproj
+*.xcworkspace
+Makefile
+CMakeLists.txt
+*.code-workspace
+.vs/
+.vscode/
+.idea/
+compile_commands.json
+.cache/
+
+# Artefacts de compilation C++
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.lib
+*.a
+*.pdb
+*.exp
+*.ilk
+*.target
+*.modules
+*.d
+*.gch
+*.pch
+
+# Packaging / divers
+*.pak
+*.zip
+*.tmp
+*.log
+*~
+.DS_Store
+Thumbs.db
