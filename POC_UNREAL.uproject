@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{0409C4EC-6F34-4FDD-8106-0C3019BB9159}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "PocUnreal",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
