@@ -33,6 +33,11 @@ AOrbitPawn::AOrbitPawn()
 	Cube->SetStaticMesh(CubeMesh.Object);
 	Cube->SetMaterial(0, CubeMat.Object);
 
+	SatellitePivot = CreateDefaultSubobject<USceneComponent>(TEXT("SatellitePivot"));
+	SatellitePivot->SetupAttachment(RootComponent);
+	// Orbite légèrement inclinée pour donner du relief.
+	SatellitePivot->SetRelativeRotation(FRotator(0.f, 0.f, 15.f));
+
 	Arm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
 	Arm->SetupAttachment(RootComponent);
 	Arm->TargetArmLength = 500.f;
@@ -73,6 +78,7 @@ void AOrbitPawn::BeginPlay()
 	SetCubeColor(RandomBrightColor());
 
 	CreateStars();
+	CreateSatellites();
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
@@ -138,9 +144,56 @@ void AOrbitPawn::CreateStars()
 	}
 }
 
+void AOrbitPawn::CreateSatellites()
+{
+	UStaticMesh* CubeMesh = Cube->GetStaticMesh();
+	UMaterialInterface* CubeMat = Cube->GetMaterial(0);
+	// Cube->GetMaterial renvoie l'instance dynamique : on repart du matériau d'origine.
+	if (UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(CubeMat))
+	{
+		CubeMat = MID->Parent;
+	}
+
+	for (int32 i = 0; i < SatelliteCount; ++i)
+	{
+		UStaticMeshComponent* Satellite = NewObject<UStaticMeshComponent>(this);
+		Satellite->SetStaticMesh(CubeMesh);
+		Satellite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Satellite->SetupAttachment(SatellitePivot);
+
+		const float Angle = 2.f * PI * i / SatelliteCount;
+		Satellite->SetRelativeLocation(FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.f) * SatelliteRadius);
+		Satellite->SetRelativeScale3D(FVector(0.25f));
+		Satellite->RegisterComponent();
+
+		Satellites.Add(Satellite);
+		SatelliteMaterials.Add(UMaterialInstanceDynamic::Create(CubeMat, this));
+		Satellite->SetMaterial(0, SatelliteMaterials.Last());
+	}
+	UpdateSatellites(0.f);
+}
+
+void AOrbitPawn::UpdateSatellites(float DeltaSeconds)
+{
+	SatellitePivot->AddLocalRotation(FRotator(0.f, SatelliteSpeed * DeltaSeconds, 0.f));
+
+	const float Time = GetWorld()->GetTimeSeconds();
+	for (int32 i = 0; i < Satellites.Num(); ++i)
+	{
+		// Chaque petit cube tourne aussi sur lui-même.
+		Satellites[i]->AddLocalRotation(FRotator(40.f, 60.f, 0.f) * DeltaSeconds);
+
+		// Teinte qui défile avec le temps, décalée pour chaque cube.
+		const float Hue = FMath::Fmod(Time / ColorCycleSeconds + float(i) / Satellites.Num(), 1.f) * 360.f;
+		SatelliteMaterials[i]->SetVectorParameterValue(TEXT("Color"), FLinearColor(Hue, 1.f, 1.f).HSVToLinearRGB());
+	}
+}
+
 void AOrbitPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	UpdateSatellites(DeltaSeconds);
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{

@@ -29,6 +29,8 @@ protected:
 
 	void SetCubeColor(const FLinearColor& Color);
 	void CreateStars();
+	void CreateSatellites();
+	void UpdateSatellites(float DeltaSeconds);
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> Cube;
@@ -50,6 +52,30 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> StarMaterial;
+
+	// Pivot qui tourne au centre : les petits cubes y sont accrochés.
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> SatellitePivot;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UStaticMeshComponent>> Satellites;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UMaterialInstanceDynamic>> SatelliteMaterials;
+
+	UPROPERTY(EditAnywhere, Category = "Satellites")
+	int32 SatelliteCount = 6;
+
+	UPROPERTY(EditAnywhere, Category = "Satellites")
+	float SatelliteRadius = 200.f;
+
+	// Vitesse de l'orbite, en degrés par seconde.
+	UPROPERTY(EditAnywhere, Category = "Satellites")
+	float SatelliteSpeed = 30.f;
+
+	// Durée d'un tour complet du dégradé de couleurs, en secondes.
+	UPROPERTY(EditAnywhere, Category = "Satellites")
+	float ColorCycleSeconds = 8.f;
 
 	// Degrés de rotation par pixel de déplacement du curseur.
 	UPROPERTY(EditAnywhere, Category = "Orbit")
