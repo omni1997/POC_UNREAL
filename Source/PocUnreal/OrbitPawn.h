@@ -29,9 +29,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void OnClick();
-	void OnPressed();
-	void OnDoubleClick();
-	void LogClick(const TCHAR* Event);
+	void LogClick();
 	void SetCubeColor(const FLinearColor& Color);
 	void CreateStars();
 	void CreateSatellites();

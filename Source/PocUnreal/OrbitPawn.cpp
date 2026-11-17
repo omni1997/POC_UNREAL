@@ -93,7 +93,8 @@ void AOrbitPawn::BeginPlay()
 	}
 	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
 	{
-		Viewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+		// Capture seulement le temps de l'appui : sans capture, le moteur n'envoie pas les clics simples au jeu.
+		Viewport->SetMouseCaptureMode(EMouseCaptureMode::CaptureDuringMouseDown);
 		Viewport->SetMouseLockMode(EMouseLockMode::DoNotLock);
 	}
 }
@@ -102,25 +103,11 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Deux clics rapprochés arrivent comme "Pressed" puis "DoubleClick" : on écoute les deux
-	// pour que chaque clic change la couleur.
-	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnPressed);
-	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_DoubleClick, this, &AOrbitPawn::OnDoubleClick);
+	// Un double-clic arrive aussi comme "Pressed" : pas besoin d'écouter IE_DoubleClick.
+	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnClick);
 }
 
-void AOrbitPawn::OnPressed()
-{
-	LogClick(TEXT("Pressed"));
-	OnClick();
-}
-
-void AOrbitPawn::OnDoubleClick()
-{
-	LogClick(TEXT("DoubleClick"));
-	OnClick();
-}
-
-void AOrbitPawn::LogClick(const TCHAR* Event)
+void AOrbitPawn::LogClick()
 {
 	FVector2D MousePos(-1.f, -1.f);
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
@@ -128,11 +115,12 @@ void AOrbitPawn::LogClick(const TCHAR* Event)
 		PC->GetMousePosition(MousePos.X, MousePos.Y);
 	}
 	++ClickCount;
-	UE_LOG(LogTemp, Warning, TEXT("Clic #%d (%s) position x=%.0f y=%.0f"), ClickCount, Event, MousePos.X, MousePos.Y);
+	UE_LOG(LogTemp, Warning, TEXT("Clic #%d position x=%.0f y=%.0f"), ClickCount, MousePos.X, MousePos.Y);
 }
 
 void AOrbitPawn::OnClick()
 {
+	LogClick();
 	// Nouvelle teinte toujours éloignée d'au moins 60° de l'actuelle : le changement se voit à chaque clic.
 	CubeHue = FMath::Fmod(CubeHue + FMath::FRandRange(60.f, 300.f), 360.f);
 	SetCubeColor(FLinearColor(CubeHue, 1.f, 1.f).HSVToLinearRGB());
