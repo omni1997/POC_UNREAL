@@ -1,6 +1,7 @@
 #include "OrbitPawn.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
+#include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerController.h"
@@ -94,6 +95,21 @@ void AOrbitPawn::BeginPlay()
 		Viewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
 		Viewport->SetMouseLockMode(EMouseLockMode::DoNotLock);
 	}
+}
+
+void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// Deux clics rapprochés arrivent comme "Pressed" puis "DoubleClick" : on écoute les deux
+	// pour que chaque clic change la couleur.
+	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnClick);
+	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_DoubleClick, this, &AOrbitPawn::OnClick);
+}
+
+void AOrbitPawn::OnClick()
+{
+	SetCubeColor(RandomBrightColor());
 }
 
 void AOrbitPawn::SetCubeColor(const FLinearColor& Color)
@@ -213,11 +229,6 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 		{
 			// Curseur hors de la fenêtre : on repart de zéro à son retour.
 			bHasLastMousePos = false;
-		}
-
-		if (PC->WasInputKeyJustPressed(EKeys::LeftMouseButton))
-		{
-			SetCubeColor(RandomBrightColor());
 		}
 	}
 }

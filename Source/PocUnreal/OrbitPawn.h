@@ -26,7 +26,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	void OnClick();
 	void SetCubeColor(const FLinearColor& Color);
 	void CreateStars();
 	void CreateSatellites();
