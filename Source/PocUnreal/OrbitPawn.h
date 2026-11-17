@@ -14,7 +14,7 @@ class UMaterialInterface;
 
 // Cube lumineux au centre d'un ciel étoilé, caméra qui tourne autour (yaw uniquement) avec la souris.
 // Démarre sur un menu (Start / Quitter). Pendant la simulation :
-// clic gauche = nouvelle couleur, flèches = déplace le centre des orbites, Espace = retour au menu.
+// clic gauche = nouvelle couleur, flèches = déplace le centre des orbites, Échap ou Espace = retour au menu.
 UCLASS()
 class POCUNREAL_API AOrbitPawn : public APawn
 {
@@ -36,7 +36,7 @@ protected:
 	void SetSimulationVisible(bool bVisible);
 
 	void OnClick();
-	void OnSpace();
+	void OnBackToMenu();
 	void ShiftOrbit(float Right, float Up);
 	void ShiftOrbitLeft() { ShiftOrbit(-1.f, 0.f); }
 	void ShiftOrbitRight() { ShiftOrbit(1.f, 0.f); }

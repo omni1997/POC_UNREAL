@@ -173,7 +173,8 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	// Un double-clic arrive aussi comme "Pressed" : pas besoin d'écouter IE_DoubleClick.
 	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnClick);
-	PlayerInputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AOrbitPawn::OnSpace);
+	PlayerInputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AOrbitPawn::OnBackToMenu);
+	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AOrbitPawn::OnBackToMenu);
 
 	// Flèches : un pas par appui, et des pas répétés si la touche reste enfoncée.
 	for (const EInputEvent Event : { IE_Pressed, IE_Repeat })
@@ -185,7 +186,7 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 }
 
-void AOrbitPawn::OnSpace()
+void AOrbitPawn::OnBackToMenu()
 {
 	if (bSimulating)
 	{
