@@ -51,8 +51,13 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> StarMaterial;
 
+	// Degrés de rotation par pixel de déplacement du curseur.
 	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float Sensitivity = 1.5f;
+	float Sensitivity = 0.3f;
+
+	// Dernière position du curseur dans la fenêtre (pour calculer le déplacement).
+	FVector2D LastMousePos;
+	bool bHasLastMousePos = false;
 
 	UPROPERTY(EditAnywhere, Category = "Etoiles")
 	int32 StarCount = 1500;

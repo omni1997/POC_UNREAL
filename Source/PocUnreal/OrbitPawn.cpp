@@ -2,6 +2,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -75,8 +76,17 @@ void AOrbitPawn::BeginPlay()
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		PC->SetInputMode(FInputModeGameOnly());
-		PC->bShowMouseCursor = false;
+		// Souris libre : curseur visible, pas de capture ni de blocage dans la fenêtre.
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = true;
+	}
+	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
+	{
+		Viewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+		Viewport->SetMouseLockMode(EMouseLockMode::DoNotLock);
 	}
 }
 
@@ -134,10 +144,23 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		float DeltaX = 0.f;
-		float DeltaY = 0.f;
-		PC->GetInputMouseDelta(DeltaX, DeltaY);
-		Arm->AddRelativeRotation(FRotator(0.f, DeltaX * Sensitivity, 0.f));
+		// Rotation selon le déplacement horizontal du curseur dans la fenêtre.
+		FVector2D MousePos;
+		if (PC->GetMousePosition(MousePos.X, MousePos.Y))
+		{
+			if (bHasLastMousePos)
+			{
+				const float DeltaX = MousePos.X - LastMousePos.X;
+				Arm->AddRelativeRotation(FRotator(0.f, DeltaX * Sensitivity, 0.f));
+			}
+			LastMousePos = MousePos;
+			bHasLastMousePos = true;
+		}
+		else
+		{
+			// Curseur hors de la fenêtre : on repart de zéro à son retour.
+			bHasLastMousePos = false;
+		}
 
 		if (PC->WasInputKeyJustPressed(EKeys::LeftMouseButton))
 		{
