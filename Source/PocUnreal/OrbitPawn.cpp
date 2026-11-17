@@ -69,6 +69,14 @@ AOrbitPawn::AOrbitPawn()
 	Light->SetUsingAbsoluteRotation(true);
 	Light->SetWorldRotation(FRotator(-45.f, 30.f, 0.f));
 	Light->SetIntensity(4.f);
+
+	FillLight = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("FillLight"));
+	FillLight->SetupAttachment(Camera);
+	// Éclaire dans la direction du regard, un peu de biais pour garder un dégradé entre les faces.
+	FillLight->SetRelativeRotation(FRotator(-15.f, 20.f, 0.f));
+	FillLight->SetIntensity(1.2f);
+	FillLight->SetCastShadows(false);
+	FillLight->SetLightColor(FLinearColor(0.75f, 0.8f, 1.f));
 }
 
 void AOrbitPawn::BeginPlay()

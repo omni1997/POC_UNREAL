@@ -46,6 +46,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDirectionalLightComponent> Light;
 
+	// Lumière d'appoint douce qui suit la caméra : évite les faces complètement noires.
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDirectionalLightComponent> FillLight;
+
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> CubeMaterial;
 
