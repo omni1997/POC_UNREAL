@@ -9,14 +9,6 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 
-namespace
-{
-	FLinearColor RandomBrightColor()
-	{
-		return FLinearColor::MakeFromHSV8(FMath::RandRange(0, 255), 255, 255);
-	}
-}
-
 AOrbitPawn::AOrbitPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -84,7 +76,8 @@ void AOrbitPawn::BeginPlay()
 	Super::BeginPlay();
 
 	CubeMaterial = Cube->CreateDynamicMaterialInstance(0);
-	SetCubeColor(RandomBrightColor());
+	CubeHue = FMath::FRandRange(0.f, 360.f);
+	SetCubeColor(FLinearColor(CubeHue, 1.f, 1.f).HSVToLinearRGB());
 
 	CreateStars();
 	CreateSatellites();
@@ -117,7 +110,9 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AOrbitPawn::OnClick()
 {
-	SetCubeColor(RandomBrightColor());
+	// Nouvelle teinte toujours éloignée d'au moins 60° de l'actuelle : le changement se voit à chaque clic.
+	CubeHue = FMath::Fmod(CubeHue + FMath::FRandRange(60.f, 300.f), 360.f);
+	SetCubeColor(FLinearColor(CubeHue, 1.f, 1.f).HSVToLinearRGB());
 }
 
 void AOrbitPawn::SetCubeColor(const FLinearColor& Color)

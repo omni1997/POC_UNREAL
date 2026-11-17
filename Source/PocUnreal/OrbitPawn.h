@@ -53,6 +53,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> CubeMaterial;
 
+	// Teinte actuelle du cube, en degrés.
+	float CubeHue = 0.f;
+
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> StarMesh;
 
