@@ -29,6 +29,9 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void OnClick();
+	void OnPressed();
+	void OnDoubleClick();
+	void LogClick(const TCHAR* Event);
 	void SetCubeColor(const FLinearColor& Color);
 	void CreateStars();
 	void CreateSatellites();
@@ -55,6 +58,9 @@ protected:
 
 	// Teinte actuelle du cube, en degrés.
 	float CubeHue = 0.f;
+
+	// Nombre de clics reçus (debug).
+	int32 ClickCount = 0;
 
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> StarMesh;
