@@ -6,7 +6,10 @@
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "SOrbitMenu.h"
+#include "Widgets/SWeakWidget.h"
 #include "UObject/ConstructorHelpers.h"
 
 AOrbitPawn::AOrbitPawn()
@@ -82,9 +85,74 @@ void AOrbitPawn::BeginPlay()
 	CreateStars();
 	CreateSatellites();
 
+	ShowMenu();
+}
+
+void AOrbitPawn::ShowMenu()
+{
+	bSimulating = false;
+	SetSimulationVisible(false);
+
+	UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
+	if (!Viewport)
+	{
+		return;
+	}
+	if (!MenuWidget)
+	{
+		TWeakObjectPtr<AOrbitPawn> WeakThis(this);
+		MenuWidget = SNew(SOrbitMenu)
+			.OnStart_Lambda([WeakThis]() { if (WeakThis.IsValid()) { WeakThis->StartSimulation(); } })
+			.OnQuit_Lambda([WeakThis]() { if (WeakThis.IsValid()) { WeakThis->QuitGame(); } });
+		MenuContainer = SNew(SWeakWidget).PossiblyNullContent(MenuWidget);
+	}
+	Viewport->AddViewportWidgetContent(MenuContainer.ToSharedRef());
+
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		// Souris libre : curseur visible, pas de capture ni de blocage dans la fenêtre.
+		FInputModeUIOnly InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = true;
+	}
+}
+
+void AOrbitPawn::StartSimulation()
+{
+	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
+	{
+		if (MenuContainer)
+		{
+			Viewport->RemoveViewportWidgetContent(MenuContainer.ToSharedRef());
+		}
+	}
+
+	// Nouvelle simulation : orbites recentrées sur le cube.
+	SatellitePivot->SetRelativeLocation(FVector::ZeroVector);
+	SetSimulationVisible(true);
+	// Évite un saut de caméra : le curseur a bougé pendant le menu.
+	bHasLastMousePos = false;
+	bSimulating = true;
+	ApplyGameInput();
+}
+
+void AOrbitPawn::QuitGame()
+{
+	UKismetSystemLibrary::QuitGame(this, Cast<APlayerController>(GetController()), EQuitPreference::Quit, false);
+}
+
+void AOrbitPawn::SetSimulationVisible(bool bVisible)
+{
+	// Le cube seul (ses lumières et la caméra y sont attachées), puis les satellites avec leur pivot.
+	Cube->SetHiddenInGame(!bVisible, false);
+	SatellitePivot->SetHiddenInGame(!bVisible, true);
+}
+
+void AOrbitPawn::ApplyGameInput()
+{
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		// Souris libre : curseur visible, pas de blocage dans la fenêtre.
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputMode.SetHideCursorDuringCapture(false);
@@ -105,6 +173,35 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	// Un double-clic arrive aussi comme "Pressed" : pas besoin d'écouter IE_DoubleClick.
 	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnClick);
+	PlayerInputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AOrbitPawn::OnSpace);
+
+	// Flèches : un pas par appui, et des pas répétés si la touche reste enfoncée.
+	for (const EInputEvent Event : { IE_Pressed, IE_Repeat })
+	{
+		PlayerInputComponent->BindKey(EKeys::Left, Event, this, &AOrbitPawn::ShiftOrbitLeft);
+		PlayerInputComponent->BindKey(EKeys::Right, Event, this, &AOrbitPawn::ShiftOrbitRight);
+		PlayerInputComponent->BindKey(EKeys::Up, Event, this, &AOrbitPawn::ShiftOrbitUp);
+		PlayerInputComponent->BindKey(EKeys::Down, Event, this, &AOrbitPawn::ShiftOrbitDown);
+	}
+}
+
+void AOrbitPawn::OnSpace()
+{
+	if (bSimulating)
+	{
+		ShowMenu();
+	}
+}
+
+void AOrbitPawn::ShiftOrbit(float Right, float Up)
+{
+	if (!bSimulating)
+	{
+		return;
+	}
+	// Déplacement dans le plan de l'écran : gauche/droite et haut/bas tels que vus par la caméra.
+	const FVector Offset = Camera->GetRightVector() * Right + Camera->GetUpVector() * Up;
+	SatellitePivot->AddWorldOffset(Offset * OrbitShiftStep);
 }
 
 void AOrbitPawn::LogClick()
@@ -120,6 +217,10 @@ void AOrbitPawn::LogClick()
 
 void AOrbitPawn::OnClick()
 {
+	if (!bSimulating)
+	{
+		return;
+	}
 	LogClick();
 	// Nouvelle teinte toujours éloignée d'au moins 60° de l'actuelle : le changement se voit à chaque clic.
 	CubeHue = FMath::Fmod(CubeHue + FMath::FRandRange(60.f, 300.f), 360.f);
@@ -222,6 +323,11 @@ void AOrbitPawn::UpdateSatellites(float DeltaSeconds)
 void AOrbitPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (!bSimulating)
+	{
+		return;
+	}
 
 	UpdateSatellites(DeltaSeconds);
 

@@ -13,7 +13,8 @@ class UStaticMesh;
 class UMaterialInterface;
 
 // Cube lumineux au centre d'un ciel étoilé, caméra qui tourne autour (yaw uniquement) avec la souris.
-// Clic gauche : le cube prend une couleur aléatoire.
+// Démarre sur un menu (Start / Quitter). Pendant la simulation :
+// clic gauche = nouvelle couleur, flèches = déplace le centre des orbites, Espace = retour au menu.
 UCLASS()
 class POCUNREAL_API AOrbitPawn : public APawn
 {
@@ -28,7 +29,19 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	void ShowMenu();
+	void StartSimulation();
+	void QuitGame();
+	void ApplyGameInput();
+	void SetSimulationVisible(bool bVisible);
+
 	void OnClick();
+	void OnSpace();
+	void ShiftOrbit(float Right, float Up);
+	void ShiftOrbitLeft() { ShiftOrbit(-1.f, 0.f); }
+	void ShiftOrbitRight() { ShiftOrbit(1.f, 0.f); }
+	void ShiftOrbitUp() { ShiftOrbit(0.f, 1.f); }
+	void ShiftOrbitDown() { ShiftOrbit(0.f, -1.f); }
 	void LogClick();
 	void SetCubeColor(const FLinearColor& Color);
 	void CreateStars();
@@ -86,6 +99,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float SatelliteSpeed = 30.f;
 
+	// Déplacement du centre des orbites à chaque appui sur une flèche.
+	UPROPERTY(EditAnywhere, Category = "Satellites")
+	float OrbitShiftStep = 15.f;
+
 	// Durée d'un tour complet du dégradé de couleurs, en secondes.
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float ColorCycleSeconds = 8.f;
@@ -97,6 +114,13 @@ protected:
 	// Dernière position du curseur dans la fenêtre (pour calculer le déplacement).
 	FVector2D LastMousePos;
 	bool bHasLastMousePos = false;
+
+	// Menu affiché par-dessus la scène, et son conteneur dans la fenêtre.
+	TSharedPtr<SWidget> MenuWidget;
+	TSharedPtr<SWidget> MenuContainer;
+
+	// Vrai pendant la simulation, faux quand le menu est affiché.
+	bool bSimulating = false;
 
 	UPROPERTY(EditAnywhere, Category = "Etoiles")
 	int32 StarCount = 1500;
