@@ -12,9 +12,9 @@ class UMaterialInstanceDynamic;
 class UStaticMesh;
 class UMaterialInterface;
 
-// Cube lumineux au centre d'un ciel étoilé, caméra qui tourne autour (yaw uniquement) avec la souris.
-// Démarre sur un menu (Start / Quitter). Pendant la simulation :
-// clic gauche = nouvelle couleur, flèches = déplace le centre des orbites, Échap ou Espace = retour au menu.
+// Glowing cube in the middle of a starry sky, with a camera that orbits around it (yaw only) using the mouse.
+// Starts on a menu (Start / Quitter). During the simulation:
+// left click = new color, arrows = move the orbit center, Escape or Space = back to the menu.
 UCLASS()
 class POCUNREAL_API AOrbitPawn : public APawn
 {
@@ -60,17 +60,17 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDirectionalLightComponent> Light;
 
-	// Lumière d'appoint douce qui suit la caméra : évite les faces complètement noires.
+	// Soft fill light that follows the camera: avoids completely black faces.
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDirectionalLightComponent> FillLight;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> CubeMaterial;
 
-	// Teinte actuelle du cube, en degrés.
+	// Current cube hue, in degrees.
 	float CubeHue = 0.f;
 
-	// Nombre de clics reçus (debug).
+	// Number of clicks received (debug).
 	int32 ClickCount = 0;
 
 	UPROPERTY()
@@ -79,7 +79,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> StarMaterial;
 
-	// Pivot qui tourne au centre : les petits cubes y sont accrochés.
+	// Pivot spinning at the center: the small cubes are attached to it.
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> SatellitePivot;
 
@@ -95,31 +95,31 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float SatelliteRadius = 200.f;
 
-	// Vitesse de l'orbite, en degrés par seconde.
+	// Orbit speed, in degrees per second.
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float SatelliteSpeed = 30.f;
 
-	// Déplacement du centre des orbites à chaque appui sur une flèche.
+	// Orbit center offset applied on each arrow key press.
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float OrbitShiftStep = 15.f;
 
-	// Durée d'un tour complet du dégradé de couleurs, en secondes.
+	// Duration of a full color gradient cycle, in seconds.
 	UPROPERTY(EditAnywhere, Category = "Satellites")
 	float ColorCycleSeconds = 8.f;
 
-	// Degrés de rotation par pixel de déplacement du curseur.
+	// Degrees of rotation per pixel of cursor movement.
 	UPROPERTY(EditAnywhere, Category = "Orbit")
 	float Sensitivity = 0.3f;
 
-	// Dernière position du curseur dans la fenêtre (pour calculer le déplacement).
+	// Last cursor position in the window (to compute the movement).
 	FVector2D LastMousePos;
 	bool bHasLastMousePos = false;
 
-	// Menu affiché par-dessus la scène, et son conteneur dans la fenêtre.
+	// Menu shown over the scene, and its container in the window.
 	TSharedPtr<SWidget> MenuWidget;
 	TSharedPtr<SWidget> MenuContainer;
 
-	// Vrai pendant la simulation, faux quand le menu est affiché.
+	// True during the simulation, false while the menu is shown.
 	bool bSimulating = false;
 
 	UPROPERTY(EditAnywhere, Category = "Etoiles")

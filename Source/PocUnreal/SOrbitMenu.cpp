@@ -51,7 +51,7 @@ TSharedRef<SWidget> SOrbitMenu::MakeButton(const FText& Label, FSimpleDelegate O
 		.HeightOverride(56.f)
 		[
 			SNew(SButton)
-			// Pas de focus clavier : sinon Espace "cliquerait" le bouton sélectionné.
+			// No keyboard focus: otherwise Space would "click" the selected button.
 			.IsFocusable(false)
 			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Center)

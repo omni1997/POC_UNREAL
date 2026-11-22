@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile le jeu en exécutable autonome (sans éditeur) puis le lance.
+# Builds the game as a standalone executable (no editor), then runs it.
 set -e
 
 UE_ROOT="${UE_ROOT:-$HOME/Bureau/UnrealEngine}"

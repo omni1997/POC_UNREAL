@@ -1,76 +1,76 @@
-# Cube en orbite — POC Unreal Engine 5
+# Cube en orbite — Unreal Engine 5 POC
 
-Petite preuve de concept en **C++ pur** sous **Unreal Engine 5.7** (Linux) : un cube lumineux au centre d'un ciel étoilé, entouré de petits cubes en orbite dont les couleurs défilent en dégradé. Aucun asset ni Blueprint : toute la scène, le menu et les contrôles sont construits dans le code.
+A small proof of concept written in **pure C++** with **Unreal Engine 5.7** (Linux): a glowing cube in the middle of a starry sky, surrounded by small orbiting cubes whose colors cycle through a gradient. No assets and no Blueprints: the scene, the menu and the controls are all built in code.
 
-![Le cube central et ses satellites en orbite](docs/images/cubes.png)
+![The central cube and its orbiting satellites](docs/images/cubes.png)
 
-## Aperçu
+## Overview
 
-| Menu d'accueil | Simulation |
+| Start menu | Simulation |
 | :---: | :---: |
-| ![Menu](docs/images/menu.png) | ![Cubes en orbite](docs/images/cubes.png) |
+| ![Menu](docs/images/menu.png) | ![Orbiting cubes](docs/images/cubes.png) |
 
-- **Menu d'accueil** (Slate) avec les boutons *Start* et *Quitter*, affiché par-dessus le ciel étoilé.
-- **Cube central** coloré, qui change de teinte à chaque clic (toujours bien différente de la précédente).
-- **6 petits cubes en orbite** autour du centre, avec un dégradé de couleurs qui tourne en continu.
-- **Ciel de 1 500 étoiles** générées aléatoirement.
-- **Caméra orbitale** qui tourne autour du cube en suivant la souris (horizontalement).
-- Éclairage principal + lumière d'appoint qui suit la caméra pour éviter les faces noires.
+- **Start menu** (Slate) with *Start* and *Quitter* (quit) buttons, shown over the starry sky.
+- **Central cube** that changes hue on every click (always clearly different from the previous one).
+- **6 small cubes orbiting** the center, with a color gradient that keeps cycling.
+- **Sky of 1,500 stars**, randomly generated.
+- **Orbit camera** that turns around the cube following the mouse (horizontally).
+- Main light + fill light that follows the camera, so no face is ever fully black.
 
-## Contrôles
+## Controls
 
-| Touche / action | Effet |
+| Key / action | Effect |
 | --- | --- |
-| Déplacer la souris | Fait tourner la caméra autour du cube |
-| Clic gauche | Nouvelle couleur pour le cube central |
-| Flèches ← → ↑ ↓ | Déplacent le centre des orbites |
-| Espace / Échap | Retour au menu |
-| Bouton *Quitter* | Ferme le jeu |
+| Move the mouse | Rotates the camera around the cube |
+| Left click | New color for the central cube |
+| Arrow keys ← → ↑ ↓ | Move the orbit center |
+| Space / Escape | Back to the menu |
+| *Quitter* button | Closes the game |
 
-## Prérequis
+## Requirements
 
 - Linux
-- Unreal Engine **5.7** compilé depuis les sources (par défaut dans `~/Bureau/UnrealEngine`, modifiable via la variable `UE_ROOT`)
+- Unreal Engine **5.7** built from source (defaults to `~/Bureau/UnrealEngine`, override with the `UE_ROOT` variable)
 
-## Lancer le projet
+## Running the project
 
 ```bash
-# Lance le jeu directement, sans ouvrir l'éditeur
+# Run the game directly, without opening the editor
 ./lancer.sh
 
-# Recompile le C++ avant de lancer
+# Rebuild the C++ before running
 ./lancer.sh --build
 
-# Avec un autre emplacement pour Unreal Engine
-UE_ROOT=/chemin/vers/UnrealEngine ./lancer.sh
+# With Unreal Engine installed elsewhere
+UE_ROOT=/path/to/UnrealEngine ./lancer.sh
 ```
 
-Pour produire un **exécutable autonome** (build + cook + package dans `Build/Packaged`) puis le lancer :
+To produce a **standalone executable** (build + cook + package into `Build/Packaged`) and run it:
 
 ```bash
 ./lancer_exe.sh
 ```
 
-Le jeu s'ouvre en fenêtre 1280×720.
+The game opens in a 1280×720 window.
 
-## Structure du code
+## Code structure
 
 ```
 Source/PocUnreal/
-├── OrbitGameMode.*   # Game mode : utilise OrbitPawn comme pawn par défaut
-├── OrbitPawn.*       # Scène : cube, satellites, étoiles, lumières, caméra et contrôles
-├── SOrbitMenu.*      # Menu d'accueil Slate (titre + Start / Quitter)
-└── PocUnreal.*       # Module du jeu
+├── OrbitGameMode.*   # Game mode: uses OrbitPawn as the default pawn
+├── OrbitPawn.*       # Scene: cube, satellites, stars, lights, camera and controls
+├── SOrbitMenu.*      # Slate start menu (title + Start / Quitter)
+└── PocUnreal.*       # Game module
 ```
 
-Quelques paramètres sont réglables directement dans `OrbitPawn.h` :
+A few parameters can be tweaked directly in `OrbitPawn.h`:
 
-| Paramètre | Défaut | Rôle |
+| Parameter | Default | Purpose |
 | --- | --- | --- |
-| `SatelliteCount` | 6 | Nombre de petits cubes en orbite |
-| `SatelliteRadius` | 200 | Rayon de l'orbite |
-| `SatelliteSpeed` | 30 °/s | Vitesse de rotation des satellites |
-| `OrbitShiftStep` | 15 | Déplacement du centre des orbites par appui sur une flèche |
-| `ColorCycleSeconds` | 8 s | Durée d'un tour complet du dégradé |
-| `Sensitivity` | 0,3 °/px | Sensibilité de la caméra à la souris |
-| `StarCount` | 1500 | Nombre d'étoiles |
+| `SatelliteCount` | 6 | Number of small orbiting cubes |
+| `SatelliteRadius` | 200 | Orbit radius |
+| `SatelliteSpeed` | 30 °/s | Satellite rotation speed |
+| `OrbitShiftStep` | 15 | Orbit center offset per arrow key press |
+| `ColorCycleSeconds` | 8 s | Duration of a full gradient cycle |
+| `Sensitivity` | 0.3 °/px | Camera mouse sensitivity |
+| `StarCount` | 1500 | Number of stars |

@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 
-// Menu d'accueil : un titre et deux boutons, Start et Quitter.
+// Start menu: a title and two buttons, Start and Quitter (quit).
 class SOrbitMenu : public SCompoundWidget
 {
 public:

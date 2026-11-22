@@ -1,7 +1,7 @@
-# Instructions locales Claude (personnelles)
+# Local Claude instructions (personal)
 CLAUDE.local.md
 
-# Unreal Engine - dossiers générés
+# Unreal Engine - generated folders
 Binaries/
 Build/
 DerivedDataCache/
@@ -10,7 +10,7 @@ Saved/
 Plugins/**/Binaries/
 Plugins/**/Intermediate/
 
-# Fichiers de projet générés (régénérables via GenerateProjectFiles)
+# Generated project files (can be regenerated with GenerateProjectFiles)
 *.sln
 *.suo
 *.sdf
@@ -28,7 +28,7 @@ CMakeLists.txt
 compile_commands.json
 .cache/
 
-# Artefacts de compilation C++
+# C++ build artifacts
 *.o
 *.obj
 *.so
@@ -45,7 +45,7 @@ compile_commands.json
 *.gch
 *.pch
 
-# Packaging / divers
+# Packaging / misc
 *.pak
 *.zip
 *.tmp

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Lance le jeu directement (sans ouvrir l'éditeur).
-# --build : compile le C++ avant de lancer.
+# Runs the game directly (without opening the editor).
+# --build: compiles the C++ before running.
 set -e
 
 UE_ROOT="${UE_ROOT:-$HOME/Bureau/UnrealEngine}"

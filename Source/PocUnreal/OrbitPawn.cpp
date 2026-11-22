@@ -19,7 +19,7 @@ AOrbitPawn::AOrbitPawn()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> CubeMat(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	// Matériau non éclairé et opaque avec un paramètre "Color".
+	// Unlit opaque material with a "Color" parameter.
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> UnlitMat(TEXT("/Engine/EngineDebugMaterials/LevelColorationUnlitMaterial.LevelColorationUnlitMaterial"));
 	StarMesh = SphereMesh.Object;
 	StarMaterial = UnlitMat.Object;
@@ -31,7 +31,7 @@ AOrbitPawn::AOrbitPawn()
 
 	SatellitePivot = CreateDefaultSubobject<USceneComponent>(TEXT("SatellitePivot"));
 	SatellitePivot->SetupAttachment(RootComponent);
-	// Orbite légèrement inclinée pour donner du relief.
+	// Slightly tilted orbit to add depth.
 	SatellitePivot->SetRelativeRotation(FRotator(0.f, 0.f, 15.f));
 
 	Arm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
@@ -45,17 +45,17 @@ AOrbitPawn::AOrbitPawn()
 	Camera->SetupAttachment(Arm, USpringArmComponent::SocketName);
 
 	FPostProcessSettings& PP = Camera->PostProcessSettings;
-	// Exposition fixe : sinon l'exposition auto éclaircit le fond sombre.
+	// Fixed exposure: otherwise auto exposure brightens the dark background.
 	PP.bOverride_AutoExposureMethod = true;
 	PP.AutoExposureMethod = AEM_Manual;
 	PP.bOverride_AutoExposureApplyPhysicalCameraExposure = true;
 	PP.AutoExposureApplyPhysicalCameraExposure = false;
 	PP.bOverride_AutoExposureBias = true;
 	PP.AutoExposureBias = 0.f;
-	// Bloom : fait rayonner le cube.
+	// Bloom: makes the cube glow.
 	PP.bOverride_BloomIntensity = true;
 	PP.BloomIntensity = 4.f;
-	// Pas de flou de mouvement (traînées autour du cube quand la caméra tourne vite).
+	// No motion blur (trails around the cube when the camera turns fast).
 	PP.bOverride_MotionBlurAmount = true;
 	PP.MotionBlurAmount = 0.f;
 
@@ -67,7 +67,7 @@ AOrbitPawn::AOrbitPawn()
 
 	FillLight = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("FillLight"));
 	FillLight->SetupAttachment(Camera);
-	// Éclaire dans la direction du regard, un peu de biais pour garder un dégradé entre les faces.
+	// Lights along the view direction, slightly offset to keep a gradient between faces.
 	FillLight->SetRelativeRotation(FRotator(-15.f, 20.f, 0.f));
 	FillLight->SetIntensity(1.2f);
 	FillLight->SetCastShadows(false);
@@ -127,10 +127,10 @@ void AOrbitPawn::StartSimulation()
 		}
 	}
 
-	// Nouvelle simulation : orbites recentrées sur le cube.
+	// New simulation: orbits recentered on the cube.
 	SatellitePivot->SetRelativeLocation(FVector::ZeroVector);
 	SetSimulationVisible(true);
-	// Évite un saut de caméra : le curseur a bougé pendant le menu.
+	// Avoids a camera jump: the cursor moved while the menu was shown.
 	bHasLastMousePos = false;
 	bSimulating = true;
 	ApplyGameInput();
@@ -143,7 +143,7 @@ void AOrbitPawn::QuitGame()
 
 void AOrbitPawn::SetSimulationVisible(bool bVisible)
 {
-	// Le cube seul (ses lumières et la caméra y sont attachées), puis les satellites avec leur pivot.
+	// The cube alone (its lights and the camera are attached to it), then the satellites with their pivot.
 	Cube->SetHiddenInGame(!bVisible, false);
 	SatellitePivot->SetHiddenInGame(!bVisible, true);
 }
@@ -152,7 +152,7 @@ void AOrbitPawn::ApplyGameInput()
 {
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		// Souris libre : curseur visible, pas de blocage dans la fenêtre.
+		// Free mouse: visible cursor, not locked to the window.
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputMode.SetHideCursorDuringCapture(false);
@@ -161,7 +161,7 @@ void AOrbitPawn::ApplyGameInput()
 	}
 	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
 	{
-		// Capture seulement le temps de l'appui : sans capture, le moteur n'envoie pas les clics simples au jeu.
+		// Capture only while the button is held: without capture, the engine does not send single clicks to the game.
 		Viewport->SetMouseCaptureMode(EMouseCaptureMode::CaptureDuringMouseDown);
 		Viewport->SetMouseLockMode(EMouseLockMode::DoNotLock);
 	}
@@ -171,12 +171,12 @@ void AOrbitPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Un double-clic arrive aussi comme "Pressed" : pas besoin d'écouter IE_DoubleClick.
+	// A double click also arrives as "Pressed": no need to listen to IE_DoubleClick.
 	PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AOrbitPawn::OnClick);
 	PlayerInputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AOrbitPawn::OnBackToMenu);
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AOrbitPawn::OnBackToMenu);
 
-	// Flèches : un pas par appui, et des pas répétés si la touche reste enfoncée.
+	// Arrows: one step per press, and repeated steps while the key is held.
 	for (const EInputEvent Event : { IE_Pressed, IE_Repeat })
 	{
 		PlayerInputComponent->BindKey(EKeys::Left, Event, this, &AOrbitPawn::ShiftOrbitLeft);
@@ -200,7 +200,7 @@ void AOrbitPawn::ShiftOrbit(float Right, float Up)
 	{
 		return;
 	}
-	// Déplacement dans le plan de l'écran : gauche/droite et haut/bas tels que vus par la caméra.
+	// Move in the screen plane: left/right and up/down as seen by the camera.
 	const FVector Offset = Camera->GetRightVector() * Right + Camera->GetUpVector() * Up;
 	SatellitePivot->AddWorldOffset(Offset * OrbitShiftStep);
 }
@@ -223,7 +223,7 @@ void AOrbitPawn::OnClick()
 		return;
 	}
 	LogClick();
-	// Nouvelle teinte toujours éloignée d'au moins 60° de l'actuelle : le changement se voit à chaque clic.
+	// New hue always at least 60° away from the current one: the change is visible on every click.
 	CubeHue = FMath::Fmod(CubeHue + FMath::FRandRange(60.f, 300.f), 360.f);
 	SetCubeColor(FLinearColor(CubeHue, 1.f, 1.f).HSVToLinearRGB());
 }
@@ -243,7 +243,7 @@ void AOrbitPawn::CreateStars()
 		return;
 	}
 
-	// Une poignée de teintes : blanc, bleuté, jaune pâle, rosé. Valeurs > 1 pour que le bloom les fasse briller.
+	// A handful of tints: white, bluish, pale yellow, pinkish. Values > 1 so that bloom makes them shine.
 	const FLinearColor Tints[] = {
 		FLinearColor(1.f, 1.f, 1.f),
 		FLinearColor(0.6f, 0.75f, 1.f),
@@ -267,7 +267,7 @@ void AOrbitPawn::CreateStars()
 		Star->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Star->SetCastShadow(false);
 
-		// Étoiles réparties sur une coquille lointaine ; beaucoup de petites, quelques grosses.
+		// Stars spread over a distant shell; many small ones, a few big ones.
 		const FVector Location = Rand.GetUnitVector() * Rand.FRandRange(20000.f, 40000.f);
 		const float Size = FMath::Lerp(0.5f, 2.2f, FMath::Pow(Rand.FRand(), 6.f));
 		Star->SetWorldLocationAndRotation(Location, FRotator::ZeroRotator);
@@ -280,7 +280,7 @@ void AOrbitPawn::CreateSatellites()
 {
 	UStaticMesh* CubeMesh = Cube->GetStaticMesh();
 	UMaterialInterface* CubeMat = Cube->GetMaterial(0);
-	// Cube->GetMaterial renvoie l'instance dynamique : on repart du matériau d'origine.
+	// Cube->GetMaterial returns the dynamic instance: start again from the original material.
 	if (UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(CubeMat))
 	{
 		CubeMat = MID->Parent;
@@ -312,10 +312,10 @@ void AOrbitPawn::UpdateSatellites(float DeltaSeconds)
 	const float Time = GetWorld()->GetTimeSeconds();
 	for (int32 i = 0; i < Satellites.Num(); ++i)
 	{
-		// Chaque petit cube tourne aussi sur lui-même.
+		// Each small cube also spins on itself.
 		Satellites[i]->AddLocalRotation(FRotator(40.f, 60.f, 0.f) * DeltaSeconds);
 
-		// Teinte qui défile avec le temps, décalée pour chaque cube.
+		// Hue that cycles over time, offset for each cube.
 		const float Hue = FMath::Fmod(Time / ColorCycleSeconds + float(i) / Satellites.Num(), 1.f) * 360.f;
 		SatelliteMaterials[i]->SetVectorParameterValue(TEXT("Color"), FLinearColor(Hue, 1.f, 1.f).HSVToLinearRGB());
 	}
@@ -334,7 +334,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		// Rotation selon le déplacement horizontal du curseur dans la fenêtre.
+		// Rotation from the horizontal cursor movement in the window.
 		FVector2D MousePos;
 		if (PC->GetMousePosition(MousePos.X, MousePos.Y))
 		{
@@ -348,7 +348,7 @@ void AOrbitPawn::Tick(float DeltaSeconds)
 		}
 		else
 		{
-			// Curseur hors de la fenêtre : on repart de zéro à son retour.
+			// Cursor outside the window: start over when it comes back.
 			bHasLastMousePos = false;
 		}
 	}
