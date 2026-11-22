@@ -24,7 +24,7 @@ void SOrbitMenu::Construct(const FArguments& InArgs)
 			.Padding(0.f, 0.f, 0.f, 28.f)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(TEXT("Cube en orbite")))
+				.Text(FText::FromString(TEXT("Orbiting Cube")))
 				.Font(FCoreStyle::GetDefaultFontStyle("Bold", 32))
 				.ColorAndOpacity(FLinearColor::White)
 			]
@@ -38,7 +38,7 @@ void SOrbitMenu::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			.Padding(0.f, 6.f)
 			[
-				MakeButton(FText::FromString(TEXT("Quitter")), InArgs._OnQuit)
+				MakeButton(FText::FromString(TEXT("Quit")), InArgs._OnQuit)
 			]
 		]
 	];

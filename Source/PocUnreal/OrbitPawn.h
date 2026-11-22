@@ -13,7 +13,7 @@ class UStaticMesh;
 class UMaterialInterface;
 
 // Glowing cube in the middle of a starry sky, with a camera that orbits around it (yaw only) using the mouse.
-// Starts on a menu (Start / Quitter). During the simulation:
+// Starts on a menu (Start / Quit). During the simulation:
 // left click = new color, arrows = move the orbit center, Escape or Space = back to the menu.
 UCLASS()
 class POCUNREAL_API AOrbitPawn : public APawn
@@ -122,6 +122,6 @@ protected:
 	// True during the simulation, false while the menu is shown.
 	bool bSimulating = false;
 
-	UPROPERTY(EditAnywhere, Category = "Etoiles")
+	UPROPERTY(EditAnywhere, Category = "Stars")
 	int32 StarCount = 1500;
 };

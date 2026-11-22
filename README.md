@@ -1,4 +1,4 @@
-# Cube en orbite — Unreal Engine 5 POC
+# Orbiting Cube — Unreal Engine 5 POC
 
 A small proof of concept written in **pure C++** with **Unreal Engine 5.7** (Linux): a glowing cube in the middle of a starry sky, surrounded by small orbiting cubes whose colors cycle through a gradient. No assets and no Blueprints: the scene, the menu and the controls are all built in code.
 
@@ -10,7 +10,7 @@ A small proof of concept written in **pure C++** with **Unreal Engine 5.7** (Lin
 | :---: | :---: |
 | ![Menu](docs/images/menu.png) | ![Orbiting cubes](docs/images/cubes.png) |
 
-- **Start menu** (Slate) with *Start* and *Quitter* (quit) buttons, shown over the starry sky.
+- **Start menu** (Slate) with *Start* and *Quit* buttons, shown over the starry sky.
 - **Central cube** that changes hue on every click (always clearly different from the previous one).
 - **6 small cubes orbiting** the center, with a color gradient that keeps cycling.
 - **Sky of 1,500 stars**, randomly generated.
@@ -25,7 +25,7 @@ A small proof of concept written in **pure C++** with **Unreal Engine 5.7** (Lin
 | Left click | New color for the central cube |
 | Arrow keys ← → ↑ ↓ | Move the orbit center |
 | Space / Escape | Back to the menu |
-| *Quitter* button | Closes the game |
+| *Quit* button | Closes the game |
 
 ## Requirements
 
@@ -36,19 +36,19 @@ A small proof of concept written in **pure C++** with **Unreal Engine 5.7** (Lin
 
 ```bash
 # Run the game directly, without opening the editor
-./lancer.sh
+./run.sh
 
 # Rebuild the C++ before running
-./lancer.sh --build
+./run.sh --build
 
 # With Unreal Engine installed elsewhere
-UE_ROOT=/path/to/UnrealEngine ./lancer.sh
+UE_ROOT=/path/to/UnrealEngine ./run.sh
 ```
 
 To produce a **standalone executable** (build + cook + package into `Build/Packaged`) and run it:
 
 ```bash
-./lancer_exe.sh
+./run_packaged.sh
 ```
 
 The game opens in a 1280×720 window.
@@ -59,7 +59,7 @@ The game opens in a 1280×720 window.
 Source/PocUnreal/
 ├── OrbitGameMode.*   # Game mode: uses OrbitPawn as the default pawn
 ├── OrbitPawn.*       # Scene: cube, satellites, stars, lights, camera and controls
-├── SOrbitMenu.*      # Slate start menu (title + Start / Quitter)
+├── SOrbitMenu.*      # Slate start menu (title + Start / Quit)
 └── PocUnreal.*       # Game module
 ```
 

@@ -213,7 +213,7 @@ void AOrbitPawn::LogClick()
 		PC->GetMousePosition(MousePos.X, MousePos.Y);
 	}
 	++ClickCount;
-	UE_LOG(LogTemp, Warning, TEXT("Clic #%d position x=%.0f y=%.0f"), ClickCount, MousePos.X, MousePos.Y);
+	UE_LOG(LogTemp, Warning, TEXT("Click #%d at x=%.0f y=%.0f"), ClickCount, MousePos.X, MousePos.Y);
 }
 
 void AOrbitPawn::OnClick()
